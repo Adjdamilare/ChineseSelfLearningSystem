@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Words - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="btn">Dashboard</a>
+                    <a href="/flashcard-study" class="btn">Flashcards</a>
+                    <a href="/study-flashcards" class="btn" style="background: var(--accent); color: white;">Study</a>
+                    <a href="/flashcards" class="btn">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="card">
+                <h2 class="mb-3">
+                    <i class="fas fa-search" style="color: var(--accent);"></i> Search Chinese Words
+                </h2>
+                
+                {% if error %}
+                <div class="toast toast-error" style="position: relative; bottom: auto; left: auto; transform: none; margin-bottom: 1rem;">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form id="search-form" method="post" action="/search">
+                    <div class="search-container">
+                        <div style="position: relative; flex: 1;">
+                            <input type="text" id="search-input" name="query" class="search-input" 
+                                   placeholder="Search by character, pinyin, or English meaning..." required>
+                        </div>
+                        <select name="level" id="level" style="padding: 0.875rem 2rem 0.875rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius-full); font-size: 0.9375rem; background: white; cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236e6e73' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center;">
+                            <option value="">All Levels</option>
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3</option>
+                            <option value="4">Level 4</option>
+                            <option value="5">Level 5</option>
+                            <option value="6">Level 6</option>
+                        </select>
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-2" style="color: var(--text-secondary); font-size: 0.875rem;">
+                    <i class="fas fa-info-circle" style="color: var(--accent);"></i> 
+                    Tip: You can search for words using Chinese characters (汉字), pinyin (shao), or English meanings (few).
+                </div>
+            </div>
+
+            <!-- Search Tips -->
+            <div class="card">
+                <h3 class="mb-3">
+                    <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Search Tips
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 4px solid var(--success);">
+                        <div style="font-size: 2rem; color: var(--success); margin-bottom: 1rem;">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <strong>By Character</strong>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 0;">Type any Chinese character to find words containing it. Perfect for visual learners!</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 4px solid var(--accent);">
+                        <div style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <strong>By Pinyin</strong>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 0;">Type pinyin like "shao" to find words with that pronunciation. Great for pronunciation practice!</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 4px solid var(--warning);">
+                        <div style="font-size: 2rem; color: var(--warning); margin-bottom: 1rem;">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <strong>By English</strong>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 0;">Type English words like "few" to find matching Chinese words. Ideal for vocabulary building!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Searches -->
+            <div id="recent-searches" class="card hidden">
+                <h3 class="mb-3">
+                    <i class="fas fa-history" style="color: var(--text-tertiary);"></i> Recent Searches
+                </h3>
+                <div id="search-history-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <!-- Recent searches will be populated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Enhanced search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('search-input');
+            const recentSearches = document.getElementById('recent-searches');
+            const historyContainer = document.getElementById('search-history-container');
+            
+            // Load and display recent searches
+            const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            
+            if (searchHistory.length > 0) {
+                recentSearches.classList.remove('hidden');
+                historyContainer.innerHTML = searchHistory.slice(0, 8).map(term => `
+                    <button class="btn btn-sm btn-secondary" onclick="useSearchTerm('${term}')">
+                        <i class="fas fa-search"></i> ${term}
+                    </button>
+                `).join('');
+            }
+            
+            // Save search term to history
+            searchForm.addEventListener('submit', function() {
+                const term = searchInput.value.trim();
+                if (term && term.length >= 2) {
+                    // Remove if already exists and add to front
+                    const index = searchHistory.indexOf(term);
+                    if (index > -1) {
+                        searchHistory.splice(index, 1);
+                    }
+                    searchHistory.unshift(term);
+                    
+                    // Keep only last 10 searches
+                    if (searchHistory.length > 10) {
+                        searchHistory.pop();
+                    }
+                    
+                    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                    
+                    // Update recent searches display
+                    if (recentSearches.classList.contains('hidden')) {
+                        recentSearches.classList.remove('hidden');
+                    }
+                    historyContainer.innerHTML = searchHistory.slice(0, 8).map(term => `
+                        <button class="btn btn-sm btn-secondary" onclick="useSearchTerm('${term}')">
+                            <i class="fas fa-search"></i> ${term}
+                        </button>
+                    `).join('');
+                }
+            });
+        });
+        
+        function useSearchTerm(term) {
+            document.getElementById('search-input').value = term;
+            document.getElementById('search-form').submit();
+        }
+    </script>
+</body>
+</html>

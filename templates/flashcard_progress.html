@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Progress - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="btn">Dashboard</a>
+                    <a href="/search" class="btn">Search Words</a>
+                    <a href="/flashcard-study" class="btn">Flashcards</a>
+                    <a href="/study-flashcards" class="btn" style="background: var(--accent); color: white;">Study</a>
+                    <a href="/flashcards" class="btn">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="progress-container">
+                <!-- Overview Stats -->
+                <div class="overview-cards" id="overview-cards">
+                    <div class="overview-card new">
+                        <div class="icon"><i class="fas fa-seedling"></i></div>
+                        <div class="value" id="stat-new">0</div>
+                        <div class="label">New Words</div>
+                    </div>
+                    <div class="overview-card easy">
+                        <div class="icon"><i class="fas fa-check-double"></i></div>
+                        <div class="value" id="stat-easy">0</div>
+                        <div class="label">Easy</div>
+                    </div>
+                    <div class="overview-card fair">
+                        <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="value" id="stat-fair">0</div>
+                        <div class="label">Fair</div>
+                    </div>
+                    <div class="overview-card hard">
+                        <div class="icon"><i class="fas fa-fire"></i></div>
+                        <div class="value" id="stat-hard">0</div>
+                        <div class="label">Hard</div>
+                    </div>
+                    <div class="overview-card mastered">
+                        <div class="icon"><i class="fas fa-trophy"></i></div>
+                        <div class="value" id="stat-mastered">0</div>
+                        <div class="label">Mastered</div>
+                    </div>
+                </div>
+
+                <!-- Start Studying CTA -->
+                <div class="start-studying-card" id="start-cta">
+                    <h2><i class="fas fa-rocket"></i> Ready to Start Learning?</h2>
+                    <p>Begin your flashcard study session and master Chinese vocabulary from HSK 1 to HSK 6.</p>
+                    <a href="/study-flashcards" class="btn btn-lg">
+                        <i class="fas fa-play"></i> Start Studying
+                    </a>
+                </div>
+
+                <!-- Level Progress -->
+                <div class="level-progress-section">
+                    <h2 style="color: var(--text-primary); margin-bottom: 1.5rem;">
+                        <i class="fas fa-chart-line" style="color: var(--accent);"></i> Progress by HSK Level
+                    </h2>
+                    <div id="level-progress-container">
+                        <!-- Level cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Load progress data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgressData();
+        });
+
+        async function loadProgressData() {
+            try {
+                const response = await fetch('/api/study/progress');
+                const data = await response.json();
+
+                // Update overview stats
+                document.getElementById('stat-new').textContent = data.stats.new_count || 0;
+                document.getElementById('stat-easy').textContent = data.stats.easy_count || 0;
+                document.getElementById('stat-fair').textContent = data.stats.fair_count || 0;
+                document.getElementById('stat-hard').textContent = data.stats.hard_count || 0;
+                document.getElementById('stat-mastered').textContent = data.stats.mastered_count || 0;
+
+                // Update level progress
+                const container = document.getElementById('level-progress-container');
+                
+                if (data.levels.length === 0) {
+                    container.innerHTML = `
+                        <div class="level-card text-center" style="padding: 2rem;">
+                            <p style="color: var(--text-tertiary); margin-bottom: 0;">No progress yet. Start studying to see your progress here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.levels.forEach(level => {
+                    const total = level.total_words || 1;
+                    const masteredPct = ((level.mastered || 0) / total * 100).toFixed(1);
+                    const easyPct = ((level.easy || 0) / total * 100).toFixed(1);
+                    const fairPct = ((level.fair || 0) / total * 100).toFixed(1);
+                    const hardPct = ((level.hard || 0) / total * 100).toFixed(1);
+                    const newPct = ((level.new_words || 0) / total * 100).toFixed(1);
+
+                    html += `
+                        <div class="level-card">
+                            <div class="level-header">
+                                <div class="level-title">
+                                    <span class="level-badge level-${level.level}">HSK ${level.level}</span>
+                                    <h3>Level ${level.level}</h3>
+                                </div>
+                                <div class="level-stats">
+                                    <span><i class="fas fa-book" style="color: var(--accent);"></i> ${total} words</span>
+                                    <span><i class="fas fa-trophy" style="color: var(--success);"></i> ${level.mastered || 0} mastered</span>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-bar-stacked">
+                                ${level.mastered > 0 ? `<div class="progress-segment mastered" style="width: ${masteredPct}%">${masteredPct}%</div>` : ''}
+                                ${level.easy > 0 ? `<div class="progress-segment easy" style="width: ${easyPct}%">${easyPct}%</div>` : ''}
+                                ${level.fair > 0 ? `<div class="progress-segment fair" style="width: ${fairPct}%">${fairPct}%</div>` : ''}
+                                ${level.hard > 0 ? `<div class="progress-segment hard" style="width: ${hardPct}%">${hardPct}%</div>` : ''}
+                                ${level.new_words > 0 ? `<div class="progress-segment new" style="width: ${newPct}%">${newPct}%</div>` : ''}
+                            </div>
+                            
+                            <div class="level-legend">
+                                <span><div class="legend-dot" style="background: var(--success);"></div> Mastered: ${level.mastered || 0}</span>
+                                <span><div class="legend-dot" style="background: #2db84e;"></div> Easy: ${level.easy || 0}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-fair);"></div> Fair: ${level.fair || 0}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-hard);"></div> Hard: ${level.hard || 0}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-new);"></div> New: ${level.new_words || 0}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+    </script>
+</body>
+</html>

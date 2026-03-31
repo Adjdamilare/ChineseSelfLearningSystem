@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="btn">Dashboard</a>
+                    <a href="/search" class="btn">Search Words</a>
+                    <a href="/flashcard-study" class="btn btn-secondary" style="border-color: var(--accent); color: var(--accent);">Flashcards</a>
+                    <a href="/study-flashcards" class="btn">Study</a>
+                    <a href="/flashcards" class="btn" style="background: var(--accent); color: white;">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Stats Overview -->
+            <div class="flashcard-stats fade-in">
+                <div class="stat-card new">
+                    <div class="stat-number" id="stat-new">0</div>
+                    <div class="stat-label">New</div>
+                </div>
+                <div class="stat-card easy">
+                    <div class="stat-number" id="stat-easy">0</div>
+                    <div class="stat-label">Easy</div>
+                </div>
+                <div class="stat-card fair">
+                    <div class="stat-number" id="stat-fair">0</div>
+                    <div class="stat-label">Fair</div>
+                </div>
+                <div class="stat-card hard">
+                    <div class="stat-number" id="stat-hard">0</div>
+                    <div class="stat-label">Hard</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card fade-in">
+                <div class="filter-section">
+                    <label><strong>Filter by:</strong></label>
+                    <select id="filter-level">
+                        <option value="all">All Levels</option>
+                        <option value="1">HSK 1</option>
+                        <option value="2">HSK 2</option>
+                        <option value="3">HSK 3</option>
+                        <option value="4">HSK 4</option>
+                        <option value="5">HSK 5</option>
+                        <option value="6">HSK 6</option>
+                    </select>
+                    <select id="filter-difficulty">
+                        <option value="all">All Difficulties</option>
+                        <option value="new">New</option>
+                        <option value="easy">Easy</option>
+                        <option value="fair">Fair</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="loadFlashcards()" style="padding: 0.5rem 1rem;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flashcard Display -->
+            <div class="flashcard-container">
+                <div id="flashcard-area" class="fade-in">
+                    <!-- Flashcard will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Progress by Level -->
+            <div class="card progress-section fade-in">
+                <h2 class="mb-3">
+                    <i class="fas fa-chart-bar" style="color: var(--accent);"></i> Progress by HSK Level
+                </h2>
+                <div id="progress-container">
+                    <!-- Progress bars will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Flashcard state
+        let currentFlashcards = [];
+        let currentIndex = 0;
+        let currentFilter = { level: 'all', difficulty: 'all' };
+
+        // Load flashcards on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFlashcards();
+            loadProgress();
+        });
+
+        // Load flashcards from API
+        async function loadFlashcards() {
+            const level = document.getElementById('filter-level').value;
+            const difficulty = document.getElementById('filter-difficulty').value;
+            
+            try {
+                let url = '/api/flashcards?';
+                if (level !== 'all') url += `level=${level}&`;
+                if (difficulty !== 'all') url += `difficulty=${difficulty}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                currentFlashcards = data.flashcards;
+                currentIndex = 0;
+
+                // Update stats
+                updateStats(data.stats);
+
+                // Display first card
+                displayFlashcard();
+            } catch (error) {
+                console.error('Error loading flashcards:', error);
+            }
+        }
+
+        // Update statistics display
+        function updateStats(stats) {
+            document.getElementById('stat-new').textContent = stats.new_count || 0;
+            document.getElementById('stat-easy').textContent = stats.easy_count || 0;
+            document.getElementById('stat-fair').textContent = stats.fair_count || 0;
+            document.getElementById('stat-hard').textContent = stats.hard_count || 0;
+        }
+
+        // Display current flashcard
+        function displayFlashcard() {
+            const container = document.getElementById('flashcard-area');
+
+            if (currentFlashcards.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center" style="padding: 3rem;">
+                        <div style="font-size: 4rem; color: var(--border); margin-bottom: 1rem;">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h3>No flashcards yet!</h3>
+                        <p style="color: var(--text-secondary);">Start by searching for words and adding them to your flashcards.</p>
+                        <a href="/search" class="btn btn-lg" style="margin-top: 1.5rem;">
+                            <i class="fas fa-search"></i> Search Words
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const card = currentFlashcards[currentIndex];
+            const difficultyColors = {
+                'new': 'var(--diff-new)',
+                'easy': 'var(--diff-easy)',
+                'fair': 'var(--diff-fair)',
+                'hard': 'var(--diff-hard)'
+            };
+
+            container.innerHTML = `
+                <div class="card-counter" style="text-align: center; color: var(--text-tertiary); font-size: 0.875rem; margin-bottom: 1rem;">
+                    Card ${currentIndex + 1} of ${currentFlashcards.length}
+                </div>
+                <div class="flashcard-main">
+                    <div class="flashcard-level" style="position: absolute; top: 1.5rem; right: 1.5rem;">
+                        <span class="level-badge level-${card.level}">HSK ${card.level}</span>
+                    </div>
+                    
+                    <div class="flashcard-word">
+                        <div class="flashcard-hanzi">${card.hanzi}</div>
+                        <div class="flashcard-pinyin">${card.pinyin}</div>
+                        <div class="flashcard-english">${card.english}</div>
+                        <span class="flashcard-pos">${card.pos}</span>
+                    </div>
+
+                    <div class="flashcard-difficulty" style="position: absolute; bottom: 1.5rem; left: 1.5rem; font-size: 0.875rem; color: var(--text-tertiary);">
+                        <span style="color: ${difficultyColors[card.difficulty]}">●</span>
+                        Current: ${card.difficulty.charAt(0).toUpperCase() + card.difficulty.slice(1)}
+                    </div>
+
+                    <div class="flashcard-actions" style="margin-top: 2rem;">
+                        <button class="btn-play" onclick="playPronunciation('${card.tts_url}', this)" title="Play pronunciation">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flashcard-actions">
+                    <button class="btn btn-hard" onclick="reviewCard('hard')">
+                        <i class="fas fa-fire"></i> Hard (1d)
+                    </button>
+                    <button class="btn btn-fair" onclick="reviewCard('fair')">
+                        <i class="fas fa-minus"></i> Fair (3d)
+                    </button>
+                    <button class="btn btn-easy" onclick="reviewCard('easy')">
+                        <i class="fas fa-check"></i> Easy (7d)
+                    </button>
+                </div>
+
+                <div class="text-center mt-2">
+                    <button class="btn btn-secondary" onclick="navigateCard(-1)" ${currentIndex === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <button class="btn btn-secondary" onclick="navigateCard(1)" ${currentIndex === currentFlashcards.length - 1 ? 'disabled' : ''}>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Navigate through cards
+        function navigateCard(direction) {
+            const newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < currentFlashcards.length) {
+                currentIndex = newIndex;
+                displayFlashcard();
+            }
+        }
+
+        // Review a card with difficulty
+        async function reviewCard(difficulty) {
+            if (currentFlashcards.length === 0) return;
+
+            const card = currentFlashcards[currentIndex];
+
+            try {
+                const formData = new FormData();
+                formData.append('flashcard_id', card.flashcard_id);
+                formData.append('difficulty', difficulty);
+
+                const response = await fetch('/api/flashcards/review', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Remove from current list and show next card
+                    currentFlashcards.splice(currentIndex, 1);
+                    
+                    // Adjust index if needed
+                    if (currentIndex >= currentFlashcards.length) {
+                        currentIndex = Math.max(0, currentFlashcards.length - 1);
+                    }
+
+                    displayFlashcard();
+                    loadFlashcards(); // Refresh stats
+                    showToast(`Card marked as ${difficulty}!`, 'success');
+                }
+            } catch (error) {
+                console.error('Error reviewing card:', error);
+                showToast('Error reviewing card', 'error');
+            }
+        }
+
+        // Play pronunciation
+        function playPronunciation(ttsUrl, button) {
+            if (audioPlayer) {
+                audioPlayer.playAudio(ttsUrl, button);
+            } else {
+                // Fallback if audioPlayer is not available
+                const audio = new Audio(ttsUrl);
+                audio.play();
+            }
+        }
+
+        // Load progress by level
+        async function loadProgress() {
+            try {
+                const response = await fetch('/api/flashcards/progress');
+                const data = await response.json();
+
+                const container = document.getElementById('progress-container');
+                
+                if (data.progress.length === 0) {
+                    container.innerHTML = '<p class="text-center" style="color: var(--text-tertiary);">No progress data yet. Start adding flashcards!</p>';
+                    return;
+                }
+
+                let html = '';
+                data.progress.forEach(level => {
+                    const total = level.total_cards;
+                    const newCount = level.new_count || 0;
+                    const easyCount = level.easy_count || 0;
+                    const fairCount = level.fair_count || 0;
+                    const hardCount = level.hard_count || 0;
+
+                    const newPct = (newCount / total * 100).toFixed(1);
+                    const easyPct = (easyCount / total * 100).toFixed(1);
+                    const fairPct = (fairCount / total * 100).toFixed(1);
+                    const hardPct = (hardCount / total * 100).toFixed(1);
+
+                    html += `
+                        <div class="level-card">
+                            <div class="level-header">
+                                <div class="level-title">
+                                    <span class="level-badge level-${level.level}">HSK ${level.level}</span>
+                                </div>
+                                <span style="font-size: 0.875rem; color: var(--text-secondary);">${total} cards | ${level.total_reviews} reviews</span>
+                            </div>
+                            <div class="progress-bar-stacked">
+                                <div class="progress-segment new" style="width: ${newPct}%" title="New: ${newCount}"></div>
+                                <div class="progress-segment easy" style="width: ${easyPct}%" title="Easy: ${easyCount}"></div>
+                                <div class="progress-segment fair" style="width: ${fairPct}%" title="Fair: ${fairCount}"></div>
+                                <div class="progress-segment hard" style="width: ${hardPct}%" title="Hard: ${hardCount}"></div>
+                            </div>
+                            <div class="level-legend">
+                                <span><div class="legend-dot" style="background: var(--diff-new);"></div> New: ${newCount}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-easy);"></div> Easy: ${easyCount}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-fair);"></div> Fair: ${fairCount}</span>
+                                <span><div class="legend-dot" style="background: var(--diff-hard);"></div> Hard: ${hardCount}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+
+        // Filter change handlers
+        document.getElementById('filter-level').addEventListener('change', loadFlashcards);
+        document.getElementById('filter-difficulty').addEventListener('change', loadFlashcards);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') navigateCard(-1);
+            if (e.key === 'ArrowRight') navigateCard(1);
+            if (e.key === '1') reviewCard('hard');
+            if (e.key === '2') reviewCard('fair');
+            if (e.key === '3') reviewCard('easy');
+        });
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

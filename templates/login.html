@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/register" class="btn">Sign Up</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="card form-container">
+                <h2 class="text-center mb-3">
+                    <i class="fas fa-sign-in-alt" style="color: var(--accent);"></i> Welcome Back
+                </h2>
+                
+                {% if error %}
+                <div class="toast toast-error" style="position: relative; bottom: auto; left: auto; transform: none; margin-bottom: 1rem;">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="/login">
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope" style="color: var(--accent);"></i> Email Address
+                        </label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="your.email@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock" style="color: var(--accent);"></i> Password
+                        </label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Your password" minlength="6">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-lg" style="width: 100%; margin-top: 0.5rem;">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                
+                <div class="text-center mt-2" style="color: var(--text-secondary);">
+                    Don't have an account? <a href="/register" style="color: var(--accent); font-weight: 500;">Sign up here</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Auto-focus email field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+        });
+    </script>
+</body>
+</html>

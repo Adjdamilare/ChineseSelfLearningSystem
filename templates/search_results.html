@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="btn">Dashboard</a>
+                    <a href="/search" class="btn">Search Again</a>
+                    <a href="/flashcard-study" class="btn">Flashcards</a>
+                    <a href="/study-flashcards" class="btn">Study</a>
+                    <a href="/flashcards" class="btn">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Search Summary -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="color: var(--text-primary); margin-bottom: 0.5rem;">
+                            <i class="fas fa-search" style="color: var(--accent);"></i> Search Results
+                        </h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 0;">
+                            Found {{ words|length }} word{{ 's' if words|length != 1 else '' }} for: 
+                            <strong>"{{ query }}"</strong>
+                            {% if level %} | Level: {{ level }}{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <a href="/search" class="btn btn-secondary">
+                            <i class="fas fa-search"></i> New Search
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Words Grid -->
+            <div class="word-grid">
+                {% for word in words %}
+                <div class="word-card fade-in" data-word-id="{{ word[0] }}">
+                    <div class="word-header">
+                        <div class="hanzi">{{ word[2] }}</div>
+                        <span class="level-badge level-{{ word[1] }}">Level {{ word[1] }}</span>
+                    </div>
+                    
+                    <div class="word-content">
+                        <div class="pinyin">
+                            <strong>Pinyin:</strong> {{ word[3] }} ({{ word[4] }})
+                        </div>
+                        <div class="english">
+                            <strong>English:</strong> {{ word[6] }}
+                        </div>
+                        <div class="pos">
+                            <strong>Part of Speech:</strong> {{ word[7] }}
+                        </div>
+                    </div>
+                    
+                    <div class="audio-controls">
+                        <button class="play-btn" data-tts-url="{{ word[8] }}" title="Play pronunciation">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="add-flashcard-btn" data-word-id="{{ word[0] }}" title="Add to flashcards">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card text-center" style="padding: 3rem; grid-column: 1 / -1;">
+                    <div style="font-size: 3rem; color: var(--accent); margin-bottom: 1rem;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>No words found</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Try searching with different terms or check your spelling.
+                    </p>
+                    <a href="/search" class="btn">Try Another Search</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Search Tips -->
+            {% if words %}
+            <div class="card mt-3">
+                <h3 class="mb-3">
+                    <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Learning Tips
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                        <strong><i class="fas fa-volume-up" style="color: var(--accent);"></i> Listen First</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">Always click the play button to hear the correct pronunciation before trying to read the word.</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                        <strong><i class="fas fa-eye" style="color: var(--success);"></i> Visual Recognition</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">Focus on recognizing the character shapes. Chinese is visual - patterns help with memorization.</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                        <strong><i class="fas fa-tags" style="color: var(--warning);"></i> Level Progression</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0;">Start with lower levels and work your way up. Don't rush - mastery takes time.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Add flashcard functionality
+        async function addWordToFlashcards(wordId, button) {
+            try {
+                const formData = new FormData();
+                formData.append('word_id', wordId);
+
+                const response = await fetch('/api/flashcards/add', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Change button to show success
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    button.style.background = 'var(--success)';
+                    button.title = 'Added to flashcards';
+                    
+                    showToast('Word added to flashcards!', 'success');
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-plus"></i>';
+                        button.style.background = '';
+                        button.title = 'Add to flashcards';
+                    }, 2000);
+                } else {
+                    showToast(result.detail || 'Failed to add flashcard', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding flashcard:', error);
+                showToast('Error adding flashcard', 'error');
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Enhanced keyboard navigation and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const wordCards = document.querySelectorAll('.word-card');
+            
+            // Add click handlers for flashcard buttons
+            document.querySelectorAll('.add-flashcard-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent card click
+                    const wordId = this.getAttribute('data-word-id');
+                    addWordToFlashcards(wordId, this);
+                });
+            });
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    // Focus next card
+                    const focused = document.querySelector('.word-card:focus-within');
+                    if (focused) {
+                        const index = Array.from(wordCards).indexOf(focused);
+                        if (index < wordCards.length - 1) {
+                            wordCards[index + 1].focus();
+                        }
+                    } else if (wordCards.length > 0) {
+                        wordCards[0].focus();
+                    }
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    // Focus previous card
+                    const focused = document.querySelector('.word-card:focus-within');
+                    if (focused) {
+                        const index = Array.from(wordCards).indexOf(focused);
+                        if (index > 0) {
+                            wordCards[index - 1].focus();
+                        }
+                    }
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    // Play audio on focused card
+                    const focused = document.querySelector('.word-card:focus-within');
+                    if (focused) {
+                        const playBtn = focused.querySelector('.play-btn');
+                        if (playBtn) {
+                            playBtn.click();
+                        }
+                    }
+                } else if (e.key === 'Escape') {
+                    // Stop all audio
+                    const audioElements = document.querySelectorAll('audio');
+                    audioElements.forEach(audio => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    });
+                }
+            });
+            
+            // Make cards focusable
+            wordCards.forEach(card => {
+                card.setAttribute('tabindex', '0');
+            });
+        });
+    </script>
+</body>
+</html>

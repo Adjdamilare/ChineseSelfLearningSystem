@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/search" class="btn">Search Words</a>
+                    <a href="/flashcard-study" class="btn">Flashcards</a>
+                    <a href="/study-flashcards" class="btn" style="background: var(--accent); color: white;">Study</a>
+                    <a href="/flashcards" class="btn">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Welcome Card -->
+            <div class="welcome-card fade-in">
+                {% if is_first_time %}
+                <h2><i class="fas fa-star"></i> Welcome, {{ user.username }}!</h2>
+                <p>Great to have you here! Start your Chinese learning journey by searching for words.</p>
+                {% else %}
+                <h2><i class="fas fa-home"></i> Welcome back, {{ user.username }}!</h2>
+                <p>Ready to continue your Chinese learning? Let's find some new words to practice.</p>
+                {% endif %}
+                
+                <div class="user-info">
+                    <strong>User:</strong> {{ user.username }} | 
+                    <strong>Email:</strong> {{ user.email }} | 
+                    <strong>Status:</strong> Active Learner
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <h2 class="mb-3">
+                    <i class="fas fa-bolt" style="color: var(--warning);"></i> Quick Actions
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <a href="/study-flashcards" class="btn btn-lg" style="text-align: center; padding: 1.5rem; font-size: 1.1rem; background: var(--accent); color: white;">
+                        <i class="fas fa-graduation-cap" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                        Study Flashcards
+                    </a>
+                    <a href="/search" class="btn btn-lg btn-secondary" style="text-align: center; padding: 1.5rem; font-size: 1.1rem;">
+                        <i class="fas fa-search" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                        Search Words
+                    </a>
+                    <a href="/flashcards" class="btn btn-lg btn-secondary" style="text-align: center; padding: 1.5rem; font-size: 1.1rem;">
+                        <i class="fas fa-chart-bar" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                        View Progress
+                    </a>
+                    <button class="btn btn-lg btn-secondary" style="text-align: center; padding: 1.5rem; font-size: 1.1rem;" onclick="showTips()">
+                        <i class="fas fa-lightbulb" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; color: var(--warning);"></i>
+                        Learning Tips
+                    </button>
+                    <button class="btn btn-lg" style="text-align: center; padding: 1.5rem; font-size: 1.1rem; background: linear-gradient(135deg, var(--warning), #ff6b00); color: white;" onclick="openEssayModal()">
+                        <i class="fas fa-book-reader" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                        Essay of the Day
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="card">
+                <h2 class="mb-3">
+                    <i class="fas fa-graduation-cap" style="color: var(--accent);"></i> Learning Features
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+                        <div style="font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Interactive Flashcards</h3>
+                        <p>Test yourself on word meanings. Type your answer and get instant feedback. Words you find difficult will reappear for review.</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+                        <div style="font-size: 2.5rem; color: var(--success); margin-bottom: 1rem;">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Spaced Repetition</h3>
+                        <p>Words are scheduled for review based on how well you know them. Easy words appear less frequently, hard words appear more often.</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+                        <div style="font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem;">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <h3>Audio Pronunciation</h3>
+                        <p>Click the play button on any word card to hear the correct pronunciation. This helps with listening and speaking skills.</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+                        <div style="font-size: 2.5rem; color: var(--warning); margin-bottom: 1rem;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Progress Tracking</h3>
+                        <p>Track your mastery from HSK 1 to HSK 6. See which words you've mastered and which need more practice.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div id="tips-section" class="card hidden">
+                <h2 class="mb-2">
+                    <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Learning Tips
+                </h2>
+                <div style="line-height: 1.8; color: var(--text-secondary);">
+                    <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> Daily Practice</h4>
+                    <p>Try to learn at least 5-10 new words every day. Consistency is key to language learning.</p>
+                    
+                    <h4 style="margin-top: 1rem;"><i class="fas fa-volume-up" style="color: var(--accent);"></i> Listen and Repeat</h4>
+                    <p>Always use the audio feature. Listen carefully to the pronunciation and try to repeat it out loud.</p>
+                    
+                    <h4 style="margin-top: 1rem;"><i class="fas fa-eye" style="color: var(--warning);"></i> Visual Learning</h4>
+                    <p>Pay attention to the character shapes. Chinese is a visual language, so recognizing patterns helps with memorization.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Essay Modal -->
+    {% include 'essay_modal.html' %}
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        function showTips() {
+            const tipsSection = document.getElementById('tips-section');
+            tipsSection.classList.toggle('hidden');
+            
+            // Scroll to tips section
+            if (!tipsSection.classList.contains('hidden')) {
+                tipsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>

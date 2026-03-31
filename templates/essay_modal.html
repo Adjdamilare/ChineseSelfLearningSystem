@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay of the Day - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Essay-specific styles */
+        .essay-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .essay-modal.active {
+            display: flex;
+        }
+
+        .essay-modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-xl);
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .essay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 10;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+
+        .essay-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .essay-close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+        }
+
+        .essay-close-btn:hover {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .essay-body {
+            padding: 1.5rem;
+        }
+
+        .essay-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .essay-title h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .essay-meta {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+            flex-wrap: wrap;
+        }
+
+        .essay-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .essay-chinese {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .essay-chinese-text {
+            font-size: 1.75rem;
+            line-height: 2;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .essay-chinese-text .word {
+            cursor: pointer;
+            padding: 0.125rem 0.25rem;
+            border-radius: 4px;
+            transition: all var(--transition-fast);
+            display: inline;
+        }
+
+        .essay-chinese-text .word:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .essay-chinese-text .word.selected {
+            background: var(--accent);
+            color: white;
+        }
+
+        .essay-translation {
+            background: var(--accent-light);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .essay-translation h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .essay-translation p {
+            color: var(--text-primary);
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .essay-vocabulary {
+            margin-bottom: 1.5rem;
+        }
+
+        .essay-vocabulary h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .vocabulary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .vocab-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .vocab-word {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .vocab-pinyin {
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .vocab-meaning {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .vocab-pos {
+            display: inline-block;
+            font-size: 0.6875rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        .essay-cultural-notes {
+            background: var(--warning-light);
+            padding: 1.25rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--warning);
+        }
+
+        .essay-cultural-notes h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--warning);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .essay-cultural-notes p {
+            color: var(--text-primary);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Chat Section */
+        .essay-chat-section {
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.5rem;
+        }
+
+        .essay-chat-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.875rem;
+        }
+
+        .chat-message.assistant .chat-avatar {
+            background: var(--accent);
+            color: white;
+        }
+
+        .chat-message.user .chat-avatar {
+            background: var(--success);
+            color: white;
+        }
+
+        .chat-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .chat-message.assistant .chat-bubble {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-top-left-radius: 4px;
+        }
+
+        .chat-message.user .chat-bubble {
+            background: var(--accent);
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .chat-send-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 0.5rem 1rem;
+            color: var(--text-tertiary);
+            font-size: 0.8125rem;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+
+        /* Word explanation popup */
+        .word-explanation-popup {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+            max-width: 500px;
+            width: 90%;
+            z-index: 3000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .word-explanation-popup.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .word-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .word-popup-header h4 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .word-popup-close {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+        }
+
+        .word-popup-close:hover {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .word-popup-content {
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+
+        .word-popup-pinyin {
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .word-popup-pos {
+            display: inline-block;
+            background: var(--bg-secondary);
+            padding: 0.125rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .word-popup-meanings {
+            margin-bottom: 0.75rem;
+        }
+
+        .word-popup-meanings ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .word-popup-meanings li {
+            padding: 0.25rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .word-popup-meanings li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .word-popup-examples {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 0.75rem;
+        }
+
+        .word-popup-examples h5 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+        }
+
+        .example-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-chinese {
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .example-english {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+        }
+
+        /* Loading state */
+        .essay-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .essay-loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-light);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .essay-loading-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* API key warning */
+        .api-key-warning {
+            background: var(--warning-light);
+            border: 1px solid var(--warning);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .api-key-warning i {
+            color: var(--warning);
+            font-size: 1.25rem;
+        }
+
+        .api-key-warning p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .api-key-input-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .api-key-input {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.8125rem;
+        }
+
+        .api-key-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .essay-modal-content {
+                max-height: 95vh;
+                margin: 0.5rem;
+            }
+
+            .essay-chinese-text {
+                font-size: 1.5rem;
+            }
+
+            .vocabulary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Essay Modal -->
+    <div class="essay-modal" id="essayModal">
+        <div class="essay-modal-content">
+            <div class="essay-header">
+                <h2>
+                    <i class="fas fa-book-open" style="color: var(--accent);"></i>
+                    每日文章 - Essay of the Day
+                </h2>
+                <button class="essay-close-btn" onclick="closeEssayModal()" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="essay-body" id="essayBody">
+                <!-- Loading State -->
+                <div class="essay-loading" id="essayLoading">
+                    <div class="essay-loading-spinner"></div>
+                    <p class="essay-loading-text">Generating your daily essay...</p>
+                </div>
+
+                <!-- Essay Content (hidden until loaded) -->
+                <div id="essayContent" style="display: none;">
+                    <!-- API Key Warning (shown when API key is not configured) -->
+                    <div class="api-key-warning" id="apiKeyWarning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <p><strong>API Key Not Configured</strong></p>
+                            <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                Please set your Groq API key in <code>ai_essay.py</code> to generate fresh essays.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Essay Title -->
+                    <div class="essay-title">
+                        <h3 id="essayTitle">文章标题</h3>
+                        <div class="essay-meta">
+                            <span><i class="fas fa-calendar"></i> <span id="essayDate"></span></span>
+                            <span><i class="fas fa-layer-group"></i> <span id="essayLevel"></span></span>
+                            <span><i class="fas fa-font"></i> <span id="essayWordCount"></span> characters</span>
+                        </div>
+                    </div>
+
+                    <!-- Chinese Text -->
+                    <div class="essay-chinese">
+                        <div class="essay-chinese-text" id="essayChineseText">
+                            <!-- Chinese text with clickable words will be inserted here -->
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="playEssayAudio()" style="margin-top: 0.5rem;">
+                            <i class="fas fa-volume-up"></i> Listen
+                        </button>
+                    </div>
+
+                    <!-- English Translation -->
+                    <div class="essay-translation">
+                        <h4><i class="fas fa-language"></i> English Translation</h4>
+                        <p id="essayTranslation"></p>
+                    </div>
+
+                    <!-- Vocabulary -->
+                    <div class="essay-vocabulary">
+                        <h4><i class="fas fa-spell-check"></i> Key Vocabulary</h4>
+                        <div class="vocabulary-grid" id="vocabularyGrid">
+                            <!-- Vocabulary cards will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Cultural Notes -->
+                    <div class="essay-cultural-notes" id="culturalNotesSection" style="display: none;">
+                        <h4><i class="fas fa-globe-asia"></i> Cultural Notes</h4>
+                        <p id="culturalNotes"></p>
+                    </div>
+
+                    <!-- Chat Section -->
+                    <div class="essay-chat-section">
+                        <h4>
+                            <i class="fas fa-comments" style="color: var(--accent);"></i>
+                            Ask About This Essay
+                        </h4>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-message assistant">
+                                <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+                                <div class="chat-bubble">
+                                    Hi! I'm your Chinese learning assistant. Click on any word in the essay to see its meaning, or ask me any question about the essay below!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span>Assistant is typing...</span>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Ask about a word or phrase..." onkeypress="handleChatKeypress(event)">
+                            <button class="chat-send-btn" onclick="sendChatMessage()" aria-label="Send message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Word Explanation Popup -->
+    <div class="word-explanation-popup" id="wordPopup">
+        <div class="word-popup-header">
+            <h4>
+                <i class="fas fa-info-circle" style="color: var(--accent);"></i>
+                <span id="popupWord"></span>
+            </h4>
+            <button class="word-popup-close" onclick="closeWordPopup()" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="word-popup-content" id="popupContent">
+            <!-- Word explanation will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentEssay = null;
+        let chatHistory = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // API key is now configured server-side in ai_essay.py
+        });
+
+        // Modal controls
+        function openEssayModal() {
+            document.getElementById('essayModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loadDailyEssay();
+        }
+
+        function closeEssayModal() {
+            document.getElementById('essayModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on outside click
+        document.getElementById('essayModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEssayModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEssayModal();
+                closeWordPopup();
+            }
+        });
+
+        // Load daily essay
+        async function loadDailyEssay() {
+            const loadingEl = document.getElementById('essayLoading');
+            const contentEl = document.getElementById('essayContent');
+            
+            loadingEl.style.display = 'flex';
+            contentEl.style.display = 'none';
+
+            try {
+                // API key is now handled server-side
+                const response = await fetch('/api/essay/daily');
+                const data = await response.json();
+
+                if (data.essay) {
+                    currentEssay = data.essay;
+                    displayEssay(data.essay);
+
+                    if (data.essay.requires_api_key) {
+                        document.getElementById('apiKeyWarning').style.display = 'flex';
+                    }
+                }
+
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading essay:', error);
+                loadingEl.innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--error); margin-bottom: 1rem;"></i>
+                    <p class="essay-loading-text">Failed to load essay. Please try again.</p>
+                    <button class="btn btn-secondary" onclick="loadDailyEssay()" style="margin-top: 1rem;">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                `;
+            }
+        }
+
+        // Display essay content
+        function displayEssay(essay) {
+            // Title and meta
+            document.getElementById('essayTitle').textContent = essay.title || '每日文章';
+            document.getElementById('essayDate').textContent = essay.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('essayLevel').textContent = `HSK ${essay.hsk_level || 1}`;
+            document.getElementById('essayWordCount').textContent = essay.word_count || 0;
+
+            // Chinese text with clickable words
+            const chineseTextEl = document.getElementById('essayChineseText');
+            chineseTextEl.innerHTML = '';
+            
+            const chineseText = essay.chinese || '';
+            // Split by characters and make each clickable
+            for (let i = 0; i < chineseText.length; i++) {
+                const char = chineseText[i];
+                if (char.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'word';
+                    span.textContent = char;
+                    span.onclick = () => handleWordClick(char, span);
+                    chineseTextEl.appendChild(span);
+                } else {
+                    const space = document.createElement('span');
+                    space.textContent = ' ';
+                    chineseTextEl.appendChild(space);
+                }
+            }
+
+            // Translation
+            document.getElementById('essayTranslation').textContent = essay.english_translation || '';
+
+            // Vocabulary
+            const vocabGrid = document.getElementById('vocabularyGrid');
+            vocabGrid.innerHTML = '';
+            
+            if (essay.vocabulary && essay.vocabulary.length > 0) {
+                essay.vocabulary.forEach(vocab => {
+                    const card = document.createElement('div');
+                    card.className = 'vocab-card';
+                    card.onclick = () => showWordExplanation(vocab.word);
+                    card.innerHTML = `
+                        <div class="vocab-word">${vocab.word}</div>
+                        <div class="vocab-pinyin">${vocab.pinyin}</div>
+                        <div class="vocab-meaning">${vocab.meaning}</div>
+                        <span class="vocab-pos">${vocab.pos || ''}</span>
+                    `;
+                    vocabGrid.appendChild(card);
+                });
+            }
+
+            // Cultural notes
+            if (essay.cultural_notes) {
+                document.getElementById('culturalNotesSection').style.display = 'block';
+                document.getElementById('culturalNotes').textContent = essay.cultural_notes;
+            } else {
+                document.getElementById('culturalNotesSection').style.display = 'none';
+            }
+        }
+
+        // Handle word click
+        async function handleWordClick(char, element) {
+            // Remove previous selection
+            document.querySelectorAll('.word.selected').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            // Show explanation popup
+            await showWordExplanation(char);
+        }
+
+        // Show word explanation
+        async function showWordExplanation(word) {
+            const popup = document.getElementById('wordPopup');
+            const content = document.getElementById('popupContent');
+            
+            document.getElementById('popupWord').textContent = word;
+            content.innerHTML = '<div class="typing-indicator active"><div class="typing-dots"><span></span><span></span><span></span></div><span>Loading explanation...</span></div>';
+            popup.classList.add('active');
+
+            try {
+                // First, try to find in vocabulary list
+                if (currentEssay && currentEssay.vocabulary) {
+                    const vocabMatch = currentEssay.vocabulary.find(v => v.word === word);
+                    if (vocabMatch) {
+                        displayWordExplanation(vocabMatch, content);
+                        return;
+                    }
+                }
+
+                // If not in vocabulary, use API for detailed explanation
+                const response = await fetch('/api/essay/word-explain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        word: word,
+                        context: currentEssay ? currentEssay.title : ''
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.explanation) {
+                    displayWordExplanation(data.explanation, content);
+                } else {
+                    content.innerHTML = `<p style="color: var(--text-secondary);">Could not find explanation for "${word}".</p>`;
+                }
+            } catch (error) {
+                console.error('Error getting word explanation:', error);
+                content.innerHTML = `<p style="color: var(--error);">Error loading explanation. Please try again.</p>`;
+            }
+        }
+
+        function displayWordExplanation(explanation, container) {
+            let html = '';
+            
+            if (explanation.pinyin) {
+                html += `<div class="word-popup-pinyin">${explanation.pinyin}</div>`;
+            }
+            
+            if (explanation.pos) {
+                html += `<span class="word-popup-pos">${explanation.pos}</span>`;
+            }
+            
+            if (explanation.meanings) {
+                html += '<div class="word-popup-meanings"><ul>';
+                explanation.meanings.forEach(meaning => {
+                    html += `<li>${meaning}</li>`;
+                });
+                html += '</ul></div>';
+            } else if (explanation.meaning) {
+                html += `<div class="word-popup-meanings">${explanation.meaning}</div>`;
+            }
+            
+            if (explanation.example_sentences && explanation.example_sentences.length > 0) {
+                html += '<div class="word-popup-examples"><h5>Examples</h5>';
+                explanation.example_sentences.forEach(ex => {
+                    html += `
+                        <div class="example-item">
+                            <div class="example-chinese">${ex.chinese}</div>
+                            <div class="example-english">${ex.english}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            if (explanation.usage_notes) {
+                html += `<div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: 0.8125rem; color: var(--text-secondary);">
+                    <strong>Usage:</strong> ${explanation.usage_notes}
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function closeWordPopup() {
+            document.getElementById('wordPopup').classList.remove('active');
+            document.querySelectorAll('.word.selected').forEach(el => el.classList.remove('selected'));
+        }
+
+        // Chat functionality
+        function handleChatKeypress(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            input.value = '';
+
+            // Add user message to chat
+            addChatMessage('user', message);
+            chatHistory.push({ role: 'user', content: message });
+
+            // Show typing indicator
+            document.getElementById('typingIndicator').classList.add('active');
+
+            try {
+                const response = await fetch('/api/essay/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        essay_content: currentEssay ? currentEssay.chinese : '',
+                        question: message
+                    })
+                });
+
+                const data = await response.json();
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+
+                if (data.response) {
+                    addChatMessage('assistant', data.response);
+                    chatHistory.push({ role: 'assistant', content: data.response });
+                } else {
+                    addChatMessage('assistant', 'Sorry, I couldn\'t process that. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error sending chat message:', error);
+                document.getElementById('typingIndicator').classList.remove('active');
+                addChatMessage('assistant', 'Sorry, there was an error. Please try again.');
+            }
+        }
+
+        function addChatMessage(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${role}`;
+            
+            const avatarIcon = role === 'user' ? 'fas fa-user' : 'fas fa-robot';
+            
+            messageDiv.innerHTML = `
+                <div class="chat-avatar"><i class="${avatarIcon}"></i></div>
+                <div class="chat-bubble">${formatMessage(content)}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function formatMessage(text) {
+            // Simple formatting: convert newlines to <br>
+            return text.replace(/\n/g, '<br>');
+        }
+
+        // Note: API key is now configured in ai_essay.py, not in the UI
+
+        // Text-to-speech for essay
+        function playEssayAudio() {
+            if (!currentEssay || !currentEssay.chinese) {
+                showToast('No essay content to read', 'error');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(currentEssay.chinese);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

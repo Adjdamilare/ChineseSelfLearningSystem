@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Chinese Learning</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-3">
+                <a href="/dashboard" class="flex items-center gap-2 text-decoration-none">
+                    <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">中</div>
+                    <span class="font-semibold text-gray-900 hidden sm:inline">Chinese Learning</span>
+                </a>
+                
+                <div class="flex items-center gap-2 flex-wrap">
+                    <a href="/search" class="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm font-medium">
+                        <i class="fas fa-search me-1"></i> Search
+                    </a>
+                    <a href="/flashcard-study" class="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm font-medium">
+                        <i class="fas fa-layer-group me-1"></i> Flashcards
+                    </a>
+                    <a href="/study-flashcards" class="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition text-sm font-medium">
+                        <i class="fas fa-graduation-cap me-1"></i> Study
+                    </a>
+                    <a href="/flashcards" class="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm font-medium">
+                        <i class="fas fa-chart-bar me-1"></i> Progress
+                    </a>
+                    <a href="/profile" class="px-4 py-2 rounded-full bg-gray-900 text-white hover:bg-gray-800 transition text-sm font-medium">
+                        <i class="fas fa-user me-1"></i> Profile
+                    </a>
+                    <a href="/logout" class="px-4 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-50 transition text-sm font-medium">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-6">
+        <div class="container mx-auto px-4" style="max-width: 1200px;">
+            <!-- Profile Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 md:p-8 text-white mb-6 shadow-lg">
+                <div class="flex items-center gap-4 md:gap-6 flex-wrap">
+                    <div class="w-20 h-20 md:w-24 md:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl md:text-4xl font-bold border-2 border-white/30">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <div class="flex-1">
+                        <h1 class="text-2xl md:text-3xl font-bold mb-1">{{ user.username }}</h1>
+                        <p class="text-white/80 text-sm md:text-base">{{ user.email }}</p>
+                        <div class="flex gap-2 mt-2 flex-wrap">
+                            <span class="px-3 py-1 bg-green-500/30 rounded-full text-sm font-medium">
+                                <i class="fas fa-check-circle me-1"></i> Active Learner
+                            </span>
+                            <span class="px-3 py-1 bg-blue-500/30 rounded-full text-sm font-medium">
+                                <i class="fas fa-graduation-cap me-1"></i> HSK {{ stats.current_level|int if stats else 1 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">{{ stats.total_words|int if stats else 0 }}</div>
+                            <div class="text-xs text-gray-500">Words Learned</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">{{ stats.mastered_count|int if stats else 0 }}</div>
+                            <div class="text-xs text-gray-500">Mastered</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">{{ stats.total_correct|int if stats else 0 }}</div>
+                            <div class="text-xs text-gray-500">Correct Answers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">{{ stats.total_sessions|int if stats else 0 }}</div>
+                            <div class="text-xs text-gray-500">Study Sessions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column - User Info & Mastery -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Account Info -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-user-circle text-blue-500"></i>
+                            Account Information
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-sm text-gray-500">Username</span>
+                                <span class="text-sm font-medium text-gray-900">{{ user.username }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-sm text-gray-500">Email</span>
+                                <span class="text-sm font-medium text-gray-900">{{ user.email }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-sm text-gray-500">Status</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                    <i class="fas fa-circle text-[8px] me-1"></i> Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mastery Distribution -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-blue-500"></i>
+                            Mastery Distribution
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-green-50 rounded-lg p-3 text-center">
+                                <div class="text-xl font-bold text-green-600">{{ stats.easy_count|int if stats else 0 }}</div>
+                                <div class="text-xs text-green-600">Easy</div>
+                            </div>
+                            <div class="bg-orange-50 rounded-lg p-3 text-center">
+                                <div class="text-xl font-bold text-orange-600">{{ stats.fair_count|int if stats else 0 }}</div>
+                                <div class="text-xs text-orange-600">Fair</div>
+                            </div>
+                            <div class="bg-red-50 rounded-lg p-3 text-center">
+                                <div class="text-xl font-bold text-red-600">{{ stats.hard_count|int if stats else 0 }}</div>
+                                <div class="text-xs text-red-600">Hard</div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-3 text-center">
+                                <div class="text-xl font-bold text-purple-600">{{ stats.new_count|int if stats else 0 }}</div>
+                                <div class="text-xs text-purple-600">New</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accuracy Rate -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-bullseye text-blue-500"></i>
+                            Accuracy Rate
+                        </h3>
+                        <div class="flex items-center justify-center gap-4">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                                    <circle class="text-green-500" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" 
+                                        r="40" cx="50" cy="50"
+                                        stroke-dasharray="{{ accuracy_circumference|default(251) }}"
+                                        stroke-dashoffset="{{ accuracy_offset|default(251) }}"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-lg font-bold text-gray-900">{{ accuracy_rate|default(0) }}%</span>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <div class="font-medium text-gray-900">{{ stats.total_correct|int if stats else 0 }}</div>
+                                <div>correct</div>
+                                <div class="font-medium text-gray-900 mt-1">{{ ((stats.total_correct|int if stats else 0) + (stats.total_incorrect|int if stats else 0)) }}</div>
+                                <div>total</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Study Progress -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- HSK Level Progress -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-blue-500"></i>
+                            HSK Level Progress
+                        </h3>
+                        {% if level_progress %}
+                        <div class="space-y-4">
+                            {% for level in level_progress %}
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium text-gray-900">
+                                        <i class="fas fa-bookmark text-blue-500 me-1"></i>
+                                        HSK {{ level.level|int if level.level else 0 }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        {{ level.mastered|int if level.mastered else 0 }}/{{ level.total_words|int if level.total_words else 0 }} mastered
+                                    </span>
+                                </div>
+                                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all" 
+                                        style="width: {{ (level.mastered / level.total_words * 100) if level.total_words and level.total_words > 0 else 0 }}%;">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between mt-1 text-xs text-gray-500">
+                                    <span class="text-green-600">{{ level.easy|int if level.easy else 0 }} easy</span>
+                                    <span class="text-orange-600">{{ level.fair|int if level.fair else 0 }} fair</span>
+                                    <span class="text-red-600">{{ level.hard|int if level.hard else 0 }} hard</span>
+                                    <span>{{ level.new_words|int if level.new_words else 0 }} new</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-2xl mb-2"></i>
+                            <p>Start studying to see your progress!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-bolt text-blue-500"></i>
+                            Quick Actions
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <a href="/study-flashcards" class="btn btn-primary w-full py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition text-center text-sm font-medium">
+                                <i class="fas fa-graduation-cap me-1"></i> Study
+                            </a>
+                            <a href="/search" class="w-full py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition text-center text-sm font-medium">
+                                <i class="fas fa-search me-1"></i> Search
+                            </a>
+                            <a href="/flashcards" class="w-full py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition text-center text-sm font-medium">
+                                <i class="fas fa-chart-bar me-1"></i> Progress
+                            </a>
+                            <button onclick="showEssayModal()" class="w-full py-2 rounded-lg border border-gray-800 text-gray-800 hover:bg-gray-100 transition text-center text-sm font-medium">
+                                <i class="fas fa-book-reader me-1"></i> Essay
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Learning Tips -->
+                    <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-100">
+                        <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-yellow-500"></i>
+                            Learning Tip
+                        </h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            <i class="fas fa-quote-left text-blue-400 me-2 opacity-50"></i>
+                            Consistency is key! Try to study at least 10-15 minutes every day. 
+                            Words you find difficult will appear more often thanks to our spaced repetition system.
+                            <i class="fas fa-quote-right text-blue-400 ms-2 opacity-50"></i>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include Essay Modal -->
+    {% include 'essay_modal.html' %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function showEssayModal() {
+            const modal = new bootstrap.Modal(document.getElementById('essayModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
