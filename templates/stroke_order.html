@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroke Order - Chinese Learning</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/stroke_order.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <div class="logo-icon">中</div>
+                    <span>Chinese Learning</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="btn">Dashboard</a>
+                    <a href="/search" class="btn">Search Words</a>
+                    <a href="/flashcard-study" class="btn">Flashcards</a>
+                    <a href="/study-flashcards" class="btn">Study</a>
+                    <a href="/flashcards" class="btn">Progress</a>
+                    <a href="/profile" class="btn"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout" class="btn btn-secondary">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Search Section -->
+            <div class="card fade-in">
+                <h2 class="mb-3">
+                    <i class="fas fa-pencil-alt" style="color: var(--accent);"></i> Stroke Order Search
+                </h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Search for Chinese words to see animated stroke order and English meanings.
+                </p>
+                
+                <div class="stroke-search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="stroke-search-input" 
+                               class="stroke-search-input"
+                               placeholder="Enter Chinese characters (e.g., 你好，学习)..." 
+                               autocomplete="off">
+                        <button id="clear-search" class="clear-btn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button id="search-btn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <div class="search-hints">
+                    <span><i class="fas fa-info-circle"></i> Try:</span>
+                    <button class="hint-btn" data-value="你好">你好</button>
+                    <button class="hint-btn" data-value="学习">学习</button>
+                    <button class="hint-btn" data-value="中国">中国</button>
+                    <button class="hint-btn" data-value="爱">爱</button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Loading stroke order...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <div class="card">
+                    <div class="results-header">
+                        <h3><i class="fas fa-list" style="color: var(--success);"></i> Results</h3>
+                        <span id="results-count" class="results-count"></span>
+                    </div>
+                </div>
+
+                <div id="character-grid" class="character-grid">
+                    <!-- Character cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="no-results" class="card text-center hidden" style="padding: 3rem;">
+                <div style="font-size: 3rem; color: var(--text-tertiary); margin-bottom: 1rem;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No stroke order found</h3>
+                <p style="color: var(--text-secondary);">
+                    Try searching with different Chinese characters.
+                </p>
+            </div>
+
+            <!-- Initial State -->
+            <div id="welcome-message" class="card text-center" style="padding: 3rem;">
+                <div style="font-size: 4rem; color: var(--accent); margin-bottom: 1.5rem;">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
+                <h2>Learn Chinese Character Stroke Order</h2>
+                <p style="color: var(--text-secondary); max-width: 600px; margin: 1rem auto;">
+                    Search for any Chinese word to see animated stroke order and English meanings.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/stroke_order.js"></script>
+</body>
+</html>

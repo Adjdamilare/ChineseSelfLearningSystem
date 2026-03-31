@@ -18,6 +18,7 @@ from flashcard_app import (
     get_current_level
 )
 from essay_routes import essay_router
+from stroke_order_routes import stroke_order_router
 from datetime import datetime, timedelta
 
 # Configure logging
@@ -36,6 +37,9 @@ app = FastAPI(title="Chinese Self Learning System", lifespan=lifespan)
 
 # Include essay routes
 app.include_router(essay_router)
+
+# Include stroke order routes
+app.include_router(stroke_order_router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
