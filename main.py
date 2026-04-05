@@ -119,7 +119,7 @@ def create_tables():
                 interval_hours INT DEFAULT 0,
                 mastered BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                updated_at DATETIME,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
                 UNIQUE KEY unique_user_word (user_id, word_id)

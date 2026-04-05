@@ -88,7 +88,7 @@ def create_flashcard_tables():
                 interval_hours INT DEFAULT 0,
                 mastered BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                updated_at DATETIME,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
                 UNIQUE KEY unique_user_word (user_id, word_id)
@@ -273,7 +273,8 @@ def update_word_mastery(user_id: int, word_id: int, is_correct: bool, difficulty
             UPDATE user_word_mastery 
             SET difficulty = %s, times_studied = %s, times_correct = %s,
                 times_incorrect = %s, current_streak = %s, best_streak = %s,
-                next_review = %s, interval_hours = %s, mastered = %s
+                next_review = %s, interval_hours = %s, mastered = %s,
+                updated_at = NOW()
             WHERE user_id = %s AND word_id = %s
         """, (difficulty, times_studied, times_correct, times_incorrect,
               current_streak, best_streak, next_review, interval_hours, mastered,
