@@ -14,6 +14,7 @@ import mysql.connector
 import logging
 from typing import Optional
 from datetime import datetime, timedelta
+from config import get_db_config
 
 logger = logging.getLogger(__name__)
 
@@ -23,18 +24,11 @@ flashcard_router = APIRouter()
 # Templates
 templates = Jinja2Templates(directory="templates")
 
-# Database configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'joshua6775',
-    'database': 'cls'
-}
 
 def get_db_connection():
     """Get database connection"""
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**get_db_config())
         return conn
     except mysql.connector.Error as e:
         logger.error(f"Database connection error: {e}")
@@ -362,4 +356,3 @@ def get_current_level(user_id: int):
                 break
     
     return min(current_level, 6)  # Cap at HSK 6
-

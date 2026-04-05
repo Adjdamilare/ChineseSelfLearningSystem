@@ -20,6 +20,7 @@ from flashcard_app import (
 from essay_routes import essay_router
 from stroke_order_routes import stroke_order_router
 from datetime import datetime, timedelta
+from config import get_db_config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -51,18 +52,10 @@ templates = Jinja2Templates(directory="templates")
 templates.env.auto_reload = True
 templates.env.globals['enumerate'] = enumerate
 
-# Database configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'joshua6775',
-    'database': 'cls'
-}
-
 def get_db_connection():
     """Get database connection"""
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**get_db_config())
         return conn
     except mysql.connector.Error as e:
         logger.error(f"Database connection error: {e}")

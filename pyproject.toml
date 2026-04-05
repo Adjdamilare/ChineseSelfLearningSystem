@@ -9,4 +9,5 @@ dependencies = [
     "mysql-connector-python>=9.6.0",
     "groq>=0.4.2",
     "bcrypt>=4.0.1",
+    "python-dotenv>=1.0.0",
 ]

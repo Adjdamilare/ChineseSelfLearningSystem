@@ -12,15 +12,20 @@ import logging
 import json
 from typing import Optional, Dict, List
 from datetime import datetime, date
+from config import get_groq_api_key
 
 logger = logging.getLogger(__name__)
 
 # ============================================
 # GROQ API KEY CONFIGURATION
 # ============================================
-# Replace with your actual Groq API key
-GROQ_API_KEY = "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"  # <-- PUT YOUR API KEY HERE
+# API key is now loaded from .env file via config module
+# You can set it in the .env file:
+# GROQ_API_KEY=your_api_key_here
 # ============================================
+
+# Get Groq API key from config (loaded from .env)
+GROQ_API_KEY = get_groq_api_key()
 
 # Groq API client
 _client = None

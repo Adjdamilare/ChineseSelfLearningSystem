@@ -10,13 +10,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 import logging
+from config import get_db_config, get_groq_api_key
 
 from ai_essay import (
     generate_daily_essay,
     explain_word,
     chat_about_essay,
-    get_sample_essay,
-    GROQ_API_KEY
+    get_sample_essay
 )
 from flashcard_app import get_current_level
 
@@ -27,14 +27,6 @@ essay_router = APIRouter()
 
 # Templates
 templates = Jinja2Templates(directory="templates")
-
-# Database configuration (same as main.py)
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'joshua6775',
-    'database': 'cls'
-}
 
 # Pydantic models for request validation
 class WordExplanationRequest(BaseModel):
@@ -55,7 +47,7 @@ def get_db_connection():
     """Get database connection"""
     import mysql.connector
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**get_db_config())
         return conn
     except mysql.connector.Error as e:
         logger.error(f"Database connection error: {e}")
@@ -118,11 +110,11 @@ async def get_daily_essay(request: Request, use_sample: bool = False):
             return {"essay": _generated_essays[cache_key], "cached": True}
         
         # Check if API key is configured
-        if not GROQ_API_KEY and not use_sample:
+        if not get_groq_api_key() and not use_sample:
             # Return sample essay if no API key configured
             essay = get_sample_essay(current_level)
             essay['requires_api_key'] = True
-            essay['message'] = "Please set your Groq API key in ai_essay.py to generate fresh essays."
+            essay['message'] = "Please set your Groq API key in .env file to generate fresh essays."
             return {"essay": essay, "cached": False}
         
         if use_sample:
@@ -170,11 +162,11 @@ async def explain_word_endpoint(request: Request, data: WordExplanationRequest):
     
     try:
         # Check if API key is configured
-        if not GROQ_API_KEY:
+        if not get_groq_api_key():
             return JSONResponse(
                 content={
                     "error": "API key required",
-                    "message": "Please set your Groq API key in ai_essay.py to use this feature."
+                    "message": "Please set your Groq API key in .env file to use this feature."
                 },
                 status_code=400
             )
@@ -215,11 +207,11 @@ async def chat_about_essay_endpoint(request: Request, data: EssayChatRequest):
     
     try:
         # Check if API key is configured
-        if not GROQ_API_KEY:
+        if not get_groq_api_key():
             return JSONResponse(
                 content={
                     "error": "API key required",
-                    "message": "Please set your Groq API key in ai_essay.py to use this feature."
+                    "message": "Please set your Groq API key in .env file to use this feature."
                 },
                 status_code=400
             )

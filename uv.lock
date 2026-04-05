@@ -122,6 +122,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "groq" },
     { name = "mysql-connector-python" },
+    { name = "python-dotenv" },
 ]
 
 [package.metadata]
@@ -130,6 +131,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.135.2" },
     { name = "groq", specifier = ">=0.4.2" },
     { name = "mysql-connector-python", specifier = ">=9.6.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
 ]
 
 [[package]]

@@ -6,23 +6,17 @@ This script populates the words table with sample HSK 1-6 vocabulary data.
 
 import mysql.connector
 import logging
+from config import get_db_config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'joshua6775',
-    'database': 'cls'
-}
-
+# Database configuration - loaded from .env file via config module
 def get_db_connection():
     """Get database connection"""
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = mysql.connector.connect(**get_db_config())
         return conn
     except mysql.connector.Error as e:
         logger.error(f"Database connection error: {e}")
