@@ -46,7 +46,7 @@ def create_flashcard_tables():
             CREATE TABLE IF NOT EXISTS flashcard_sessions (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT NOT NULL,
-                started_at DATETIME DEFAULT NOW(),
+                started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 completed_at DATETIME NULL,
                 total_cards INT DEFAULT 0,
                 correct_count INT DEFAULT 0,
@@ -64,9 +64,9 @@ def create_flashcard_tables():
                 user_answer TEXT,
                 is_correct BOOLEAN,
                 difficulty ENUM('new', 'easy', 'fair', 'hard') DEFAULT 'new',
-                next_review DATETIME DEFAULT NOW(),
+                next_review DATETIME,
                 interval_hours INT DEFAULT 0,
-                studied_at DATETIME DEFAULT NOW(),
+                studied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (session_id) REFERENCES flashcard_sessions(id) ON DELETE CASCADE,
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE
             )
@@ -84,11 +84,11 @@ def create_flashcard_tables():
                 times_incorrect INT DEFAULT 0,
                 current_streak INT DEFAULT 0,
                 best_streak INT DEFAULT 0,
-                next_review DATETIME DEFAULT NOW(),
+                next_review DATETIME,
                 interval_hours INT DEFAULT 0,
                 mastered BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
                 UNIQUE KEY unique_user_word (user_id, word_id)
